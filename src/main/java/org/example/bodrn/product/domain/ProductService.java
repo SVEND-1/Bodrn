@@ -77,12 +77,14 @@ public class ProductService {
         return productMapper.toResponse(saved);
     }
 
+    @Transactional(readOnly = true)
     public List<ProductShortResponse> findAll(ProductFilterRequest filter) {
         String search = filter.search() == null ? "" : filter.search().trim();
         List<ProductEntity> list = productRepository.findAllFiltered(filter.categoryId(), search);
         return productMapper.toShortResponseList(list);
     }
 
+    @Transactional(readOnly = true)
     public ProductResponse findOne(Long id) {
         return productMapper.toResponse(findProduct(id));
     }

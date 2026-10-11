@@ -12,21 +12,16 @@ public record ProductCreateRequest(
 
         @NotBlank
         @Size(max = 255)
-        @BindParam("title")
         String title,
 
         @Size(max = 3000)
-        @BindParam("description")
         String description,
 
         @NotBlank
-        @BindParam("price")
         String price,
 
         @NotNull
-        @BindParam("categoryId")
         Long categoryId,
 
-        @BindParam("photos")
         List<MultipartFile> photos
 ) {}

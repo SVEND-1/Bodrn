@@ -31,7 +31,7 @@ public class ProductEntity {
     @Column(name = "price")
     private String price;
 
-    @ElementCollection(fetch = FetchType.LAZY)
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name = "service_photos",
             joinColumns = @JoinColumn(name = "service_id")
@@ -39,7 +39,7 @@ public class ProductEntity {
     @Column(name = "photo_url", nullable = false, length = 1024)
     private List<String> photos = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "category_id", nullable = false)
     private CategoryEntity category;
 }

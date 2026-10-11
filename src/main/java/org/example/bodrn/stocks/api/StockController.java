@@ -31,4 +31,22 @@ public class StockController {
     public ResponseEntity<StockResponse> findOne(@PathVariable Long id) {
         return ResponseEntity.ok(stockService.findOne(id));
     }
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<StockResponse> create(@Valid @ModelAttribute StockCreateRequest request) {
+        return ResponseEntity.ok(stockService.create(request));
+    }
+
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<StockResponse> update(
+            @PathVariable Long id,
+            @Valid @ModelAttribute StockUpdateRequest request) {
+        return ResponseEntity.ok(stockService.update(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        stockService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }

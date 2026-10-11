@@ -1,0 +1,1178 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>BODR*N — Admin</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
+
+        :root{
+            --bg:#0d0907;
+            --panel:#17100c;
+            --panel2:#211810;
+            --line:#3b2a1e;
+            --gold:#c28b4d;
+            --gold2:#dfa15e;
+            --text:#f5eadb;
+            --muted:#95816d;
+            --danger:#9c4d42;
+            --success:#5e8c65;
+        }
+
+        *{ box-sizing:border-box; }
+
+        body{
+            margin:0;
+            background:
+                    radial-gradient(circle at 50% -10%,rgba(151,98,51,.16),transparent 35%),
+                    #0d0907;
+            color:var(--text);
+            font-family:"DM Sans",sans-serif;
+            font-size: 15px;
+        }
+
+        button, input, textarea, select{ font:inherit; }
+        button{ cursor:pointer; }
+        .hidden{ display:none!important; }
+
+        /* LOGIN */
+        .login-screen{
+            min-height:100vh;
+            display:flex; align-items:center; justify-content:center;
+            padding:20px;
+        }
+        .login-card{
+            width:min(440px,100%);
+            padding:40px;
+            border:1px solid var(--line);
+            border-radius:20px;
+            background:linear-gradient(145deg,#211710,#120c09);
+            box-shadow:0 30px 100px #000;
+        }
+        .logo{
+            font-family:Georgia,serif;
+            font-size:36px; text-align:center;
+            letter-spacing:2px; margin-bottom:8px;
+        }
+        .logo span{ color:var(--gold); }
+        .login-subtitle{
+            text-align:center; color:var(--muted);
+            font-size:13px; margin-bottom:30px;
+            letter-spacing: 1px;
+        }
+
+        /* APP LAYOUT */
+        .app{
+            min-height:100vh;
+            display:grid;
+            grid-template-columns:260px 1fr;
+        }
+        .sidebar{
+            position:sticky; top:0; height:100vh;
+            border-right:1px solid var(--line);
+            background:#120c09;
+            padding:30px 20px;
+            display: flex; flex-direction: column;
+            z-index: 50;
+            transition: transform 0.3s ease;
+        }
+        .side-logo{
+            font-family:Georgia,serif;
+            font-size:26px;
+            padding:0 10px 30px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .side-logo span{ color:var(--gold); }
+
+        .nav-menu{
+            display: flex; flex-direction: column;
+            gap: 6px; overflow-y: auto; flex-grow: 1;
+            padding-bottom: 60px;
+        }
+        .nav-item{
+            width:100%; text-align:left;
+            border:0; background:transparent;
+            color:#9c856e; padding:14px 16px;
+            border-radius:10px; font-size:15px;
+            font-weight: 500; transition: 0.2s;
+        }
+        .nav-item:hover, .nav-item.active{
+            background:#24170f; color:#f5eadb;
+        }
+        .logout{
+            position: absolute; left: 20px; right: 20px; bottom: 25px;
+            border:1px solid #432c20;
+            background:#120c09;
+            color:#c49e87;
+            padding:13px; border-radius:10px;
+            font-size:14px; font-weight: 500;
+            transition: 0.2s;
+        }
+        .logout:hover{ background:#24170f; color:#f5eadb; }
+
+        /* MOBILE HEADER & TOGGLER */
+        .mobile-header{
+            display: none;
+            align-items: center; justify-content: space-between;
+            background: #120c09;
+            border-bottom: 1px solid var(--line);
+            padding: 15px 20px;
+            position: sticky; top: 0; z-index: 40;
+        }
+        .menu-toggle{
+            background: transparent;
+            border: 1px solid var(--line);
+            color: var(--text);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .content{
+            min-width:0;
+            padding:40px;
+        }
+        .page-header{
+            display:flex; justify-content:space-between;
+            align-items:flex-start; flex-wrap: wrap; gap: 15px;
+            margin-bottom:30px;
+        }
+        .page-header h1{
+            font-family:"Playfair Display";
+            font-size:32px; margin:0;
+        }
+        .page-header p{
+            color:var(--muted); font-size:14px; margin:8px 0 0;
+        }
+
+        /* CARDS */
+        .stats{
+            display:grid;
+            grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+            gap:15px; margin-bottom:25px;
+        }
+        .stat-card{
+            background:linear-gradient(145deg,#211710,#17100c);
+            border:1px solid var(--line);
+            border-radius:14px;
+            padding:22px;
+        }
+        .stat-card small{ display:block; color:#9c856e; font-size:13px; }
+        .stat-card strong{
+            display:block; color:#e1c19a;
+            font-family:"Playfair Display";
+            font-size:30px; margin-top:10px;
+        }
+
+        /* PANEL */
+        .panel{
+            background:#17100c;
+            border:1px solid var(--line);
+            border-radius:16px;
+            overflow:hidden;
+        }
+        .panel-head{
+            display:flex; align-items:center; justify-content:space-between;
+            padding:20px 24px;
+            border-bottom:1px solid #302219;
+            flex-wrap: wrap; gap: 10px;
+        }
+        .panel-head h2{
+            font-family:"Playfair Display";
+            font-size:22px; margin:0;
+        }
+        .panel-body{ padding:24px; }
+
+        /* TABLE */
+        .table-wrap{ overflow-x:auto; -webkit-overflow-scrolling: touch; }
+        table{
+            width:100%; border-collapse:collapse; min-width:700px;
+        }
+        th{
+            text-align:left; color:#a68e77;
+            font-size:13px; font-weight:600;
+            padding:16px 18px;
+            border-bottom:1px solid #36271d;
+            white-space: nowrap;
+        }
+        td{
+            padding:16px 18px;
+            border-bottom:1px solid #2a1e17;
+            font-size:14px; color:#ebdcc9;
+        }
+        tr:hover td{ background:#1b130e; }
+
+        .item-img{
+            width:55px; height:55px;
+            border-radius:10px; object-fit:cover;
+            border:1px solid #3b2a1e;
+        }
+
+        /* BUTTONS */
+        .btn{
+            border:1px solid #9c6c40;
+            background:#c89151;
+            color:#fff4e4;
+            padding:12px 20px;
+            border-radius:10px;
+            font-size:14px; font-weight:700;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .btn:hover{ background:#d69d5a; }
+
+        .btn.secondary{
+            background:#24170f;
+            border-color:#59402c;
+            color:#e0c4a0;
+        }
+        .btn.secondary:hover{ background:#322116; }
+
+        .btn.danger{
+            background:#4d241e;
+            border-color:#8c453a;
+            color:#f2c7c0;
+        }
+        .btn.danger:hover{ background:#5c2b23; }
+
+        .actions{ display:flex; gap:8px; flex-wrap:wrap; }
+
+        /* FORM */
+        .form-grid{
+            display:grid;
+            grid-template-columns:repeat(2,1fr);
+            gap:18px;
+        }
+        .form-group{ margin-bottom:18px; }
+        .form-group.full{ grid-column:1/-1; }
+        .form-group label{
+            display:block; color:#b09880;
+            font-size:13px; font-weight: 500;
+            margin-bottom:8px;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select{
+            width:100%;
+            background:#0e0907;
+            color:#f5eadb;
+            border:1px solid #453123;
+            border-radius:10px;
+            padding:13px 15px;
+            outline:none; font-size:14px;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus{
+            border-color:var(--gold);
+        }
+        .form-group textarea{ min-height:120px; resize:vertical; }
+
+        input[type="file"]{
+            color: #b09880;
+            padding: 10px;
+            background: #0e0907;
+            border: 1px dashed #453123;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+        }
+        input[type="file"]::file-selector-button{
+            background: #24170f;
+            color: #e0c4a0;
+            border: 1px solid #59402c;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            margin-right: 15px;
+            transition: 0.2s;
+        }
+        input[type="file"]::file-selector-button:hover{
+            background: #c89151;
+            color: #fff4e4;
+            border-color: #9c6c40;
+        }
+
+        .check{
+            display:flex; align-items:center; gap:10px;
+            color:#d1bda3; font-size:14px; cursor: pointer;
+        }
+        .check input{ width: 18px; height: 18px; accent-color: var(--gold); }
+
+        /* MODAL */
+        .modal{
+            position:fixed; inset:0;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter:blur(8px);
+            z-index:1000;
+            display:none; align-items:center; justify-content:center;
+            padding:15px;
+        }
+        .modal.open{ display:flex; }
+        .modal-box{
+            width:min(750px,100%);
+            max-height:90vh; overflow-y:auto;
+            background:#17100c;
+            border:1px solid #59402c;
+            border-radius:18px;
+            padding:25px;
+            box-shadow:0 30px 100px #000;
+        }
+        .modal-head{
+            display:flex; justify-content:space-between;
+            align-items: center; margin-bottom:24px;
+        }
+        .modal-head h2{
+            margin:0; font-family:"Playfair Display"; font-size:24px;
+        }
+        .close{
+            border:0; background:none;
+            color:#b09880; font-size:30px; cursor: pointer;
+        }
+        .close:hover{ color: #f5eadb; }
+
+        /* STATUS */
+        .status{
+            display:inline-block;
+            padding:6px 12px;
+            border-radius:20px;
+            font-size:12px; font-weight: 500;
+        }
+        .status.done{ background:#1b3823; color:#a3e0b0; }
+        .status.cancelled{ background:#421b18; color:#f0b2aa; }
+
+        /* TOAST */
+        .toast{
+            position:fixed; left:50%; bottom:30px;
+            transform:translateX(-50%) translateY(30px);
+            background:#c89151; color:white;
+            padding:14px 24px; border-radius:30px;
+            font-size:14px; font-weight: 600;
+            opacity:0; transition:.3s;
+            pointer-events:none; z-index:2000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-width: 90%; text-align: center;
+        }
+        .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+        /* RESPONSIVE */
+        @media(max-width:900px){
+            .app{ grid-template-columns:1fr; }
+            .sidebar{
+                position:fixed; left:0; top:0; width:280px;
+                transform:translateX(-100%);
+                box-shadow: 20px 0 50px rgba(0,0,0,0.8);
+            }
+            .sidebar.open{ transform:translateX(0); }
+            .mobile-header{ display:flex; }
+            .content{ padding:20px 15px; }
+            .form-grid{ grid-template-columns:1fr; }
+            .form-group.full{ grid-column:auto; }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+    <div class="login-card">
+        <div class="logo">BODR<span>•</span>N</div>
+        <div class="login-subtitle">ADMIN PANEL</div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Логин</label>
+                <input id="loginUsername" required>
+            </div>
+            <div class="form-group">
+                <label>Пароль</label>
+                <input id="loginPassword" type="password" required>
+            </div>
+            <button class="btn" style="width:100%; margin-top: 10px;">Войти</button>
+        </form>
+    </div>
+</div>
+
+<!-- MOBILE HEADER -->
+<div class="mobile-header hidden" id="mobileHeader">
+    <div class="side-logo" style="padding:0; font-size:22px;">BODR<span>•</span>N</div>
+    <button class="menu-toggle" onclick="toggleSidebar()">☰ Меню</button>
+</div>
+
+<!-- APP -->
+<div class="app hidden" id="app">
+    <aside class="sidebar" id="sidebar">
+        <div class="side-logo">
+            <span>BODR<span>•</span>N</span>
+            <button class="close hidden" id="sidebarClose" onclick="toggleSidebar()" style="font-size:22px;">×</button>
+        </div>
+        <div class="nav-menu">
+            <button class="nav-item active" data-page="dashboard">◉ Обзор</button>
+            <button class="nav-item" data-page="menu">☕ Меню (Товары)</button>
+            <button class="nav-item" data-page="categories">◫ Категории</button>
+            <button class="nav-item" data-page="company">🏢 Компания</button>
+            <button class="nav-item" data-page="stocks">★ Акции (Скидки)</button>
+            <button class="nav-item" data-page="reviews">“ Отзывы</button>
+            <button class="nav-item" data-page="users">👤 Админы</button>
+        </div>
+        <button class="logout" onclick="logout()">Выйти из системы</button>
+    </aside>
+    <main class="content" id="content"></main>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h2 id="modalTitle"></h2>
+            <button class="close" onclick="closeModal()">×</button>
+        </div>
+        <div id="modalContent"></div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    const API_BASE = "";
+
+    let currentPage = "dashboard";
+    let menuItems = [];
+    let categories = [];
+    let stocks = [];
+    let reviews = [];
+    let adminUsers = [];
+    let companyData = null;
+
+    function toggleSidebar(){
+        const sidebar = document.getElementById("sidebar");
+        const closeBtn = document.getElementById("sidebarClose");
+        sidebar.classList.toggle("open");
+        closeBtn.classList.toggle("hidden");
+    }
+
+    /* =========================================================
+       API HELPER
+    ========================================================= */
+    async function api(path, options = {}){
+        const isFormData = options.body instanceof FormData;
+        const headers = {
+            ...(isFormData ? {} : {"Content-Type": "application/json"}),
+            ...(options.headers || {})
+        };
+
+        const response = await fetch(API_BASE + path, {
+            ...options,
+            headers,
+            credentials: "include"
+        });
+
+        let data = null;
+        try { data = await response.json(); } catch { data = null; }
+
+        if (response.status === 401){
+            logout();
+            throw new Error("Сессия истекла");
+        }
+
+        if (!response.ok){
+            throw new Error(
+                data?.message ||
+                data?.error ||
+                `Ошибка API ${response.status}`
+            );
+        }
+        return data;
+    }
+
+    /* =========================================================
+       INIT & AUTH CHECK
+    ========================================================= */
+    async function checkAuth(){
+        try {
+            await api("/api/admin/me");
+            showApp();
+        } catch {
+            showLogin();
+        }
+    }
+    checkAuth();
+
+    document.getElementById("loginForm").addEventListener("submit", login);
+
+    document.querySelectorAll(".nav-item").forEach(button => {
+        button.addEventListener("click", () => {
+            currentPage = button.dataset.page;
+            document.querySelectorAll(".nav-item").forEach(x => x.classList.remove("active"));
+            button.classList.add("active");
+            renderPage();
+            if (window.innerWidth <= 900){
+                toggleSidebar();
+            }
+        });
+    });
+
+    async function login(event){
+        event.preventDefault();
+        const username = document.getElementById("loginUsername").value;
+        const password = document.getElementById("loginPassword").value;
+
+        try {
+            await api("/api/admin/login", {
+                method: "POST",
+                body: JSON.stringify({ username, password })
+            });
+            showToast("Добро пожаловать ✓");
+            showApp();
+        } catch (error){
+            console.error(error);
+            showToast(error.message || "Ошибка входа");
+        }
+    }
+
+    async function logout(){
+        try { await api("/api/admin/logout", { method: "POST" }); } catch {}
+        showLogin();
+    }
+
+    function showLogin(){
+        document.getElementById("app").classList.add("hidden");
+        document.getElementById("mobileHeader").classList.add("hidden");
+        document.getElementById("loginScreen").classList.remove("hidden");
+    }
+
+    function showApp(){
+        document.getElementById("loginScreen").classList.add("hidden");
+        document.getElementById("app").classList.remove("hidden");
+        document.getElementById("mobileHeader").classList.remove("hidden");
+        renderPage();
+    }
+
+    /* =========================================================
+       ROUTER
+    ========================================================= */
+    async function renderPage(){
+        const content = document.getElementById("content");
+        content.innerHTML = `<div class="empty" style="font-size:16px; color:#95816d;">Загрузка...</div>`;
+
+        try {
+            if (currentPage === "dashboard") await renderDashboard();
+            if (currentPage === "menu") await renderMenuPage();
+            if (currentPage === "categories") await renderCategoriesPage();
+            if (currentPage === "company") await renderCompanyPage();
+            if (currentPage === "stocks") await renderStocksPage();
+            if (currentPage === "reviews") await renderReviewsPage();
+            if (currentPage === "users") await renderUsersPage();
+        } catch (error){
+            console.error(error);
+            content.innerHTML = `
+                <div class="panel"><div class="panel-body">
+                    <p style="color:#d99588; font-size:16px;">
+                        ${escapeHtml(error.message)}
+                    </p>
+                </div></div>
+            `;
+        }
+    }
+
+    /* =========================================================
+       DASHBOARD
+    ========================================================= */
+    async function renderDashboard(){
+        const content = document.getElementById("content");
+        const [products, cats, stockData, reviewData] = await Promise.all([
+            api("/api/products"),
+            api("/api/categories"),
+            api("/api/stocks?page=0&size=1"),
+            api("/api/reviews?page=0&size=1")
+        ]);
+
+        const menuCount = Array.isArray(products) ? products.length : 0;
+        const categoryCount = Array.isArray(cats) ? cats.length : 0;
+        const stockCount = stockData?.totalElements || 0;
+        const reviewCount = reviewData?.totalElements || 0;
+
+        content.innerHTML = `
+            <div class="page-header">
+                <div>
+                    <h1>Обзор</h1>
+                    <p>Управление кофейней BODR*N</p>
+                </div>
+            </div>
+            <div class="stats">
+                <div class="stat-card"><small>Позиций меню</small><strong>${menuCount}</strong></div>
+                <div class="stat-card"><small>Категорий</small><strong>${categoryCount}</strong></div>
+                <div class="stat-card"><small>Акции</small><strong>${stockCount}</strong></div>
+                <div class="stat-card"><small>Отзывы</small><strong>${reviewCount}</strong></div>
+            </div>
+            <div class="panel">
+                <div class="panel-head"><h2>Быстрые действия</h2></div>
+                <div class="panel-body actions">
+                    <button class="btn" onclick="openCreateMenu()">+ Добавить позицию</button>
+                    <button class="btn secondary" onclick="openCreateCategory()">+ Категория</button>
+                    <button class="btn secondary" onclick="openCreateStock()">+ Акция</button>
+                </div>
+            </div>
+        `;
+    }
+
+    /* =========================================================
+       MENU (PRODUCTS)
+    ========================================================= */
+    async function renderMenuPage(){
+        menuItems = await api("/api/products");
+        categories = await api("/api/categories");
+        const content = document.getElementById("content");
+
+        content.innerHTML = `
+            <div class="page-header">
+                <div><h1>Меню</h1><p>Управление позициями</p></div>
+                <button class="btn" onclick="openCreateMenu()">+ Добавить</button>
+            </div>
+            <div class="panel"><div class="table-wrap"><table>
+                <thead>
+                    <tr><th>Фото</th><th>Название</th><th>Категория</th><th>Цена</th><th>Действия</th></tr>
+                </thead>
+                <tbody>
+                    ${menuItems.map(item => `
+                        <tr>
+                            <td>${item.mainPhoto ? `<img class="item-img" src="${escapeHtml(item.mainPhoto)}">` : "—"}</td>
+                            <td><strong style="font-size:15px;">${escapeHtml(item.title)}</strong></td>
+                            <td>${escapeHtml(item.price)}</td>
+                            <td>
+                                <div class="actions">
+                                    <button class="btn secondary" onclick="openEditMenu(${item.id})">Изменить</button>
+                                    <button class="btn danger" onclick="deleteMenu(${item.id})">Удалить</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join("")}
+                </tbody>
+            </table></div></div>
+        `;
+    }
+
+    function openCreateMenu(){ openModal("Добавить позицию", menuForm()); }
+
+    function openEditMenu(id){
+        const item = menuItems.find(x => x.id === id);
+        if (!item) return;
+        // подгружаем полную карточку, т.к. в списке только короткая
+        api(`/api/products/${id}`).then(full => {
+            openModal("Изменить позицию", menuForm(full));
+        }).catch(err => showToast(err.message));
+    }
+
+    function menuForm(item = {}){
+        return `
+            <form id="menuForm" enctype="multipart/form-data">
+                <div class="form-grid">
+                    ${input("menuTitle", "Название", item.title || "")}
+                    <div class="form-group">
+                        <label>Категория</label>
+                        <select id="menuCategoryId" required>
+                            <option value="">Выберите категорию</option>
+                            ${categories.map(c => `<option value="${c.id}" ${item.categoryId === c.id ? "selected" : ""}>${escapeHtml(c.name)}</option>`).join("")}
+                        </select>
+                    </div>
+                    ${input("menuPrice", "Цена", item.price || "")}
+                    <div class="form-group full">
+                        <label>Описание</label>
+                        <textarea id="menuDescription">${escapeHtml(item.description || "")}</textarea>
+                    </div>
+                    <div class="form-group full">
+                        <label>Фотографии (файлы)</label>
+                        <input type="file" id="menuPhotos" multiple accept="image/*">
+                    </div>
+                </div>
+                <button class="btn" style="margin-top:10px;" type="submit">Сохранить</button>
+                <input type="hidden" id="menuId" value="${item.id || ""}">
+            </form>
+        `;
+    }
+
+    document.addEventListener("submit", async event => {
+        if (event.target.id !== "menuForm") return;
+        event.preventDefault();
+        const id = document.getElementById("menuId").value;
+        const formData = new FormData();
+        formData.append("title", document.getElementById("menuTitle").value.trim());
+        formData.append("description", document.getElementById("menuDescription").value);
+        formData.append("price", document.getElementById("menuPrice").value.trim());
+        formData.append("categoryId", document.getElementById("menuCategoryId").value);
+
+        const files = document.getElementById("menuPhotos").files;
+        for (let i = 0; i < files.length; i++){
+            formData.append("photos", files[i]);
+        }
+
+        try {
+            if (id){
+                await api(`/api/admin/products/${id}`, { method: "PUT", body: formData });
+            } else {
+                await api("/api/admin/products", { method: "POST", body: formData });
+            }
+            closeModal();
+            showToast("Позиция сохранена ✓");
+            await renderMenuPage();
+        } catch (error){
+            console.error(error);
+            showToast(error.message);
+        }
+    });
+
+    async function deleteMenu(id){
+        if (!confirm("Удалить позицию?")) return;
+        try {
+            await api(`/api/admin/products/${id}`, { method: "DELETE" });
+            showToast("Успешно удалено");
+            await renderMenuPage();
+        } catch (error){
+            console.error(error);
+            showToast(error.message);
+        }
+    }
+
+    /* =========================================================
+       CATEGORIES
+    ========================================================= */
+    async function renderCategoriesPage(){
+        categories = await api("/api/categories");
+        const content = document.getElementById("content");
+        content.innerHTML = `
+            <div class="page-header">
+                <div><h1>Категории</h1><p>Список категорий</p></div>
+                <button class="btn" onclick="openCreateCategory()">+ Добавить</button>
+            </div>
+            <div class="panel"><div class="table-wrap"><table>
+                <thead><tr><th>ID</th><th>Название</th><th>Действия</th></tr></thead>
+                <tbody>
+                    ${categories.map(c => `
+                        <tr>
+                            <td>${c.id}</td>
+                            <td><strong style="font-size:15px;">${escapeHtml(c.name)}</strong></td>
+                            <td>
+                                <div class="actions">
+                                    <button class="btn secondary" onclick="openEditCategory(${c.id})">Изменить</button>
+                                    <button class="btn danger" onclick="deleteCategory(${c.id})">Удалить</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join("")}
+                </tbody>
+            </table></div></div>
+        `;
+    }
+
+    function openCreateCategory(){ openModal("Создать категорию", categoryForm()); }
+    function openEditCategory(id){
+        const cat = categories.find(x => x.id === id);
+        if (!cat) return;
+        openModal("Изменить категорию", categoryForm(cat));
+    }
+
+    function categoryForm(cat = {}){
+        return `
+            <form id="categoryForm">
+                ${input("categoryName", "Название", cat.name || "")}
+                <button class="btn" style="margin-top:10px;">Сохранить</button>
+                <input type="hidden" id="categoryId" value="${cat.id || ""}">
+            </form>
+        `;
+    }
+
+    document.addEventListener("submit", async event => {
+        if (event.target.id !== "categoryForm") return;
+        event.preventDefault();
+        const id = document.getElementById("categoryId").value;
+        const payload = { name: document.getElementById("categoryName").value.trim() };
+
+        try {
+            if (id){
+                await api(`/api/admin/categories/${id}`, { method: "PUT", body: JSON.stringify(payload) });
+            } else {
+                await api("/api/admin/categories", { method: "POST", body: JSON.stringify(payload) });
+            }
+            closeModal();
+            showToast("Категория сохранена ✓");
+            await renderCategoriesPage();
+        } catch (error){
+            console.error(error);
+            showToast(error.message);
+        }
+    });
+
+    async function deleteCategory(id){
+        if (!confirm("Удалить категорию?")) return;
+        try {
+            await api(`/api/admin/categories/${id}`, { method: "DELETE" });
+            showToast("Категория удалена");
+            await renderCategoriesPage();
+        } catch (error){
+            console.error(error);
+            showToast(error.message);
+        }
+    }
+
+    /* =========================================================
+       COMPANY (VENUE)
+    ========================================================= */
+    async function renderCompanyPage(){
+        try { companyData = await api("/api/company"); }
+        catch { companyData = {}; }
+
+        const content = document.getElementById("content");
+        content.innerHTML = `
+            <div class="page-header">
+                <div><h1>Компания</h1><p>Информация о кофейне</p></div>
+                <button class="btn" onclick="saveCompany()">Сохранить</button>
+            </div>
+            <div class="panel"><div class="panel-body">
+                <div class="form-grid">
+                    ${input("compName", "Название", companyData.name || "")}
+                    ${input("compPhone", "Телефон", companyData.phone || "")}
+                    ${input("compAddress", "Адрес", companyData.address || "")}
+                    ${input("compWeekdays", "Часы работы (будни)", companyData.workHoursWeekdays || "")}
+                    ${input("compWeekends", "Часы работы (выходные)", companyData.workHoursWeekends || "")}
+                    <div class="form-group full">
+                        <label>Описание</label>
+                        <textarea id="compDescription">${escapeHtml(companyData.description || "")}</textarea>
+                    </div>
+                </div>
+            </div></div>
+        `;
+    }
+
+    async function saveCompany(){
+        const payload = {
+            name: document.getElementById("compName").value,
+            phone: document.getElementById("compPhone").value,
+            address: document.getElementById("compAddress").value,
+            workHoursWeekdays: document.getElementById("compWeekdays").value,
+            workHoursWeekends: document.getElementById("compWeekends").value,
+            description: document.getElementById("compDescription").value
+        };
+
+        try {
+            await api("/api/admin/company", { method: "PUT", body: JSON.stringify(payload) });
+            showToast("Информация о компании сохранена ✓");
+        } catch (error){
+            console.error(error);
+            showToast(error.message);
+        }
+    }
+
+    /* =========================================================
+       STOCKS (АКЦИИ)
+    ========================================================= */
+    async function renderStocksPage(){
+        const data = await api("/api/stocks?page=0&size=50");
+        stocks = data.content || [];
+        const content = document.getElementById("content");
+        content.innerHTML = `
+            <div class="page-header">
+                <div><h1>Акции</h1><p>Специальные предложения</p></div>
+                <button class="btn" onclick="openCreateStock()">+ Добавить</button>
+            </div>
+            <div class="panel"><div class="table-wrap"><table>
+                <thead>
+                    <tr>
+                        <th>Фото</th>
+                        <th>Название</th>
+                        <th>Описание</th>
+                        <th>Цены</th>
+                        <th>Период</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${stocks.map(s => `
+                        <tr>
+                            <td>${s.photo ? `<img class="item-img" src="${escapeHtml(s.photo)}">` : "—"}</td>
+                            <td><strong style="font-size:15px;">${escapeHtml(s.title)}</strong></td>
+                            <td>${escapeHtml(s.description || "—")}</td>
+                            <td>
+                                ${s.priceBefore ? `<s>${s.priceBefore} ₽</s> ` : ""}
+                                ${s.priceAfter ? `<b>${s.priceAfter} ₽</b>` : "—"}
+                            </td>
+                            <td>${s.validFrom ? s.validFrom.slice(0,10) : "—"} / ${s.validTo ? s.validTo.slice(0,10) : "—"}</td>
+                            <td>
+                                <div class="actions">
+                                    <button class="btn secondary" onclick="openEditStock(${s.id})">Изменить</button>
+                                    <button class="btn danger" onclick="deleteStock(${s.id})">Удалить</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join("")}
+                </tbody>
+            </table></div></div>
+        `;
+    }
+
+    function openCreateStock(){ openModal("Создать акцию", stockForm()); }
+    function openEditStock(id){
+        const st = stocks.find(x => x.id === id);
+        if (!st) return;
+        openModal("Изменить акцию", stockForm(st));
+    }
+
+    function stockForm(st = {}){
+        return `
+            <form id="stockForm" enctype="multipart/form-data">
+                ${input("stockTitle", "Название", st.title || "")}
+                <div class="form-group full">
+                    <label>Описание</label>
+                    <textarea id="stockDescription">${escapeHtml(st.description || "")}</textarea>
+                </div>
+                <div class="form-grid">
+                    ${input("stockPriceBefore", "Цена до", st.priceBefore || "", "number")}
+                    ${input("stockPriceAfter", "Цена после", st.priceAfter || "", "number")}
+                </div>
+                ${input("stockFrom", "Действует с", st.validFrom ? st.validFrom.slice(0,16) : "", "datetime-local")}
+                ${input("stockTo", "Действует до", st.validTo ? st.validTo.slice(0,16) : "", "datetime-local")}
+                <div class="form-group full">
+                    <label>Фотография</label>
+                    <input type="file" id="stockPhoto" accept="image/*">
+                </div>
+                <button class="btn" style="margin-top:10px;">Сохранить</button>
+                <input type="hidden" id="stockId" value="${st.id || ""}">
+            </form>
+        `;
+    }
+
+    document.addEventListener("submit", async event => {
+        if (event.target.id !== "stockForm") return;
+        event.preventDefault();
+        const id = document.getElementById("stockId").value;
+        const formData = new FormData();
+        formData.append("title", document.getElementById("stockTitle").value.trim());
+        formData.append("description", document.getElementById("stockDescription").value);
+
+        const priceBefore = document.getElementById("stockPriceBefore").value;
+        if (priceBefore) formData.append("priceBefore", priceBefore);
+
+        const priceAfter = document.getElementById("stockPriceAfter").value;
+        if (priceAfter) formData.append("priceAfter", priceAfter);
+
+        const from = document.getElementById("stockFrom").value;
+        if (from) formData.append("validFrom", from + ":00");
+        const to = document.getElementById("stockTo").value;
+        if (to) formData.append("validTo", to + ":00");
+
+        const photoFile = document.getElementById("stockPhoto").files[0];
+        if (photoFile) formData.append("photo", photoFile);
+
+        try {
+            if (id){
+                await api(`/api/stocks/${id}`, { method: "PUT", body: formData });
+            } else {
+                await api("/api/stocks", { method: "POST", body: formData });
+            }
+            closeModal();
+            showToast("Акция сохранена ✓");
+            await renderStocksPage();
+        } catch (error){
+            console.error(error);
+            showToast(error.message);
+        }
+    });
+
+    async function deleteStock(id){
+        if (!confirm("Удалить акцию?")) return;
+        try {
+            await api(`/api/stocks/${id}`, { method: "DELETE" });
+            showToast("Акция удалена");
+            await renderStocksPage();
+        } catch (error){
+            console.error(error);
+            showToast(error.message);
+        }
+    }
+
+    /* =========================================================
+       REVIEWS
+    ========================================================= */
+    async function renderReviewsPage(){
+        const data = await api("/api/reviews?page=0&size=50");
+        reviews = data.content || [];
+        const content = document.getElementById("content");
+        content.innerHTML = `
+            <div class="page-header">
+                <div><h1>Отзывы</h1><p>Управление отзывами</p></div>
+            </div>
+            <div class="panel"><div class="table-wrap"><table>
+                <thead><tr><th>ID</th><th>Автор</th><th>Оценка</th><th>Текст</th><th>Действия</th></tr></thead>
+                <tbody>
+                    ${reviews.map(r => `
+                        <tr>
+                            <td>#${r.id}</td>
+                            <td><strong style="font-size:15px;">${escapeHtml(r.authorName)}</strong></td>
+                            <td><span style="color:#dfa15e; font-size:16px;">${"★".repeat(r.rating || 0)}</span></td>
+                            <td>${escapeHtml(r.text || "")}</td>
+                            <td>
+                                <div class="actions">
+                                    <button class="btn danger" onclick="deleteReview(${r.id})">Удалить</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join("")}
+                </tbody>
+            </table></div></div>
+        `;
+    }
+
+    async function deleteReview(id){
+        if (!confirm("Удалить отзыв?")) return;
+        try {
+            await api(`/api/admin/reviews/${id}`, { method: "DELETE" });
+            showToast("Отзыв удален");
+            await renderReviewsPage();
+        } catch (error){
+            console.error(error);
+            showToast(error.message);
+        }
+    }
+
+    /* =========================================================
+       USERS (ADMIN USERS)
+    ========================================================= */
+    async function renderUsersPage(){
+        adminUsers = await api("/api/admin/users");
+        const content = document.getElementById("content");
+        content.innerHTML = `
+            <div class="page-header">
+                <div><h1>Администраторы</h1><p>Управление учетными записями</p></div>
+                <button class="btn" onclick="openCreateUser()">+ Добавить админа</button>
+            </div>
+            <div class="panel"><div class="table-wrap"><table>
+                <thead><tr><th>ID</th><th>Имя пользователя</th><th>Активен</th><th>Действия</th></tr></thead>
+                <tbody>
+                    ${adminUsers.map(u => `
+                        <tr>
+                            <td>${u.id}</td>
+                            <td><strong style="font-size:15px;">${escapeHtml(u.userName)}</strong></td>
+                            <td>${u.isActive ? '<span class="status done">Да</span>' : '<span class="status cancelled">Нет</span>'}</td>
+                            <td>
+                                <div class="actions">
+                                    <button class="btn secondary" onclick="openEditUser(${u.id})">Изменить</button>
+                                    <button class="btn danger" onclick="deleteUser(${u.id})">Удалить</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join("")}
+                </tbody>
+            </table></div></div>
+        `;
+    }
+
+    function openCreateUser(){ openModal("Создать администратора", userForm()); }
+    function openEditUser(id){
+        const u = adminUsers.find(x => x.id === id);
+        if (!u) return;
+        openModal("Изменить администратора", userForm(u));
+    }
+
+    function userForm(u = {}){
+        return `
+            <form id="userForm">
+                ${input("userName", "Логин", u.userName || "")}
+                ${input("userPassword", "Пароль (мин 8 символов)", "", "password")}
+                <div class="form-group">
+                    <label class="check">
+                        <input type="checkbox" id="userActive" ${u.isActive !== false ? "checked" : ""}> Активен
+                    </label>
+                </div>
+                <button class="btn" style="margin-top:10px;">Сохранить</button>
+                <input type="hidden" id="userId" value="${u.id || ""}">
+            </form>
+        `;
+    }
+
+    document.addEventListener("submit", async event => {
+        if (event.target.id !== "userForm") return;
+        event.preventDefault();
+        const id = document.getElementById("userId").value;
+        const payload = {
+            userName: document.getElementById("userName").value.trim(),
+            password: document.getElementById("userPassword").value,
+            isActive: document.getElementById("userActive").checked
+        };
+        if (!payload.password && id) delete payload.password;
+
+        try {
+            if (id){
+                await api(`/api/admin/users/${id}`, { method: "PUT", body: JSON.stringify(payload) });
+            } else {
+                await api("/api/admin/users", { method: "POST", body: JSON.stringify(payload) });
+            }
+            closeModal();
+            showToast("Администратор сохранен ✓");
+            await renderUsersPage();
+        } catch (error){
+            console.error(error);
+            showToast(error.message);
+        }
+    });
+
+    async function deleteUser(id){
+        if (!confirm("Удалить администратора?")) return;
+        try {
+            await api(`/api/admin/users/${id}`, { method: "DELETE" });
+            showToast("Успешно удалено");
+            await renderUsersPage();
+        } catch (error){
+            console.error(error);
+            showToast(error.message);
+        }
+    }
+
+    /* =========================================================
+       MODAL & HELPERS
+    ========================================================= */
+    function openModal(title, html){
+        document.getElementById("modalTitle").textContent = title;
+        document.getElementById("modalContent").innerHTML = html;
+        document.getElementById("modal").classList.add("open");
+    }
+
+    function closeModal(){
+        document.getElementById("modal").classList.remove("open");
+    }
+
+    function input(id, label, value = "", type = "text"){
+        return `
+            <div class="form-group">
+                <label>${escapeHtml(label)}</label>
+                <input id="${id}" type="${type}" value="${escapeHtml(value)}">
+            </div>
+        `;
+    }
+
+    function escapeHtml(value){
+        return String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    function showToast(message){
+        const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.classList.add("show");
+        clearTimeout(window.toastTimer);
+        window.toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    document.getElementById("modal").addEventListener("click", event => {
+        if (event.target.id === "modal") closeModal();
+    });
+</script>
+
+</body>
+</html>

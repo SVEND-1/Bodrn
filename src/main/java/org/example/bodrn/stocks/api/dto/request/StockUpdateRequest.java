@@ -5,6 +5,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.BindParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record StockUpdateRequest(
@@ -17,6 +18,12 @@ public record StockUpdateRequest(
         @BindParam("description")
         String description,
 
+        @BindParam("priceBefore")
+        BigDecimal priceBefore,
+
+        @BindParam("priceAfter")
+        BigDecimal priceAfter,
+
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
         @BindParam("validFrom")
         LocalDateTime validFrom,
@@ -25,11 +32,9 @@ public record StockUpdateRequest(
         @BindParam("validTo")
         LocalDateTime validTo,
 
-        /** Новое фото (если передано — заменяет старое). */
         @BindParam("photo")
         MultipartFile photo,
 
-        /** true — удалить текущее фото без замены. */
         @BindParam("removePhoto")
         Boolean removePhoto
 ) {}
